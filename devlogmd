@@ -1,0 +1,6 @@
+##Devlog 1, BUILDING A WEB BASED AIM TRAINER WRITTEN IN HTML, CSS AND JS
+    I am building a broswer/web based Aim trainer for competitive games, like aimlabs but entirely written in HTML, CSS, JS and THREE.js.My primary goal was to match the aiming feel of competitive games like Valorant. Because three.js uses vertical field of vieww by default, i had to implement a dynamic conversion formula that would lock the horizontal FOV to 103. I also mapped shooter mouse sensitivity scaled directly into radian angle increaments per mouse count, to make the flick distances fell well and authentic.
+    
+    for handling movements, I integrated the pointer lock API for raw mouse input that will feel just like any competitive game. I fixed a bug that made the camera tilt sideways and also stopped the screen from flipping upside down when looking up and all. also added a "+" crosshair in the middle. Also built a training room with walls, roofs and floor, and also a little depth. added realisitc sunlight shadow casting.
+
+    For testing, I built a 4x3 grid system that keeps three targets active. clicking mouse triggers center screen raycast to detect hits, free up occupied slots, etc. And also added fps counter and removed the fps cap restrictions. The target and aiming system is working fine and its fully responsive.
