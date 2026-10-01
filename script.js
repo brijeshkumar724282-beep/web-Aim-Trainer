@@ -3,33 +3,40 @@ const canvas = document.querySelector("#main-canvas");
 const scoretext = document.querySelector('#score');
 const accuracytext = document.querySelector('#accuracy');
 
-const textLoader = new THREE.TextureLoader();
-
-//texture packs
-const lowwallText= textLoader.load("./assets/img/Texturelabs_Stone_125M.jpg");
-lowwallText.wrapS = THREE.RepeatWrapping;
-lowwallText.wrapT = THREE.RepeatWrapping;
-lowwallText.repeat.set(4,1);
-
-//floor text
-const floortextu = textLoader.load("./assets/img/Texturelabs_Soil_140M.jpg");
-floortextu.wrapS = THREE.RepeatWrapping;
-floortextu.wrapT = THREE.RepeatWrapping;
-floortextu.repeat.set(2, 2)
-
-//upper wall
-const upwallte = textLoader.load("./assets/img/Texturelabs_Brick_164M.jpg");
-upwallte.wrapS = THREE.RepeatWrapping;
-upwallte.wrapT = THREE.RepeatWrapping;
-upwallte.repeat.set(4, 2)
-
-//target
-const targettext = textLoader.load("./assets/img/Texturelabs_Metal_254S.jpg");
-
 if(canvas == false){
   console.log("no canvas");
 }
 
+
+const textLoader = new THREE.TextureLoader();
+
+//texture packs
+
+const lowwallText= textLoader.load("./assets/img/Tiles107_1K-JPG/Tiles107_1K-JPG_Color.jpg");
+lowwallText.wrapS = THREE.RepeatWrapping;
+lowwallText.wrapT = THREE.RepeatWrapping;
+lowwallText.repeat.set(5,0.7);
+
+//floor text
+const floortextu = textLoader.load("./assets/img/Tiles141_1K-JPG/Tiles141_1K-JPG_Color.jpg");
+floortextu.wrapS = THREE.RepeatWrapping;
+floortextu.wrapT = THREE.RepeatWrapping;
+floortextu.repeat.set(2, 2);
+
+//upper wall
+const upwallte = textLoader.load("./assets/img/Tiles107_1K-JPG/Tiles107_1K-JPG_Color.jpg");
+upwallte.wrapS = THREE.RepeatWrapping;
+upwallte.wrapT = THREE.RepeatWrapping;
+upwallte.repeat.set(5, 2)
+
+//target
+const targettext = textLoader.load("./assets/img/Texturelabs_Metal_254S.jpg");
+
+//side walls text
+const sidewalls = textLoader.load("./assets/img/Tiles107_1K-JPG/Tiles107_1K-JPG_Color.jpg");
+sidewalls.wrapS = THREE.RepeatWrapping;
+sidewalls.wrapT = THREE.RepeatWrapping;
+sidewalls.repeat.set(5, 2.7)
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x3a3f47);
@@ -37,28 +44,37 @@ scene.fog = new THREE.Fog(0x3a3f47, 25, 70);
 
 //material
 const floortex = new THREE.MeshStandardMaterial({
-  // color: 0xf2f2f2,
   map: floortextu,
-  roughness: 0.7,
-  metalness: 0.05
+  roughnessMap: textLoader.load("./assets/img/Tiles141_1K-JPG/Tiles141_1K-JPG_Roughness.jpg"),
+  normalMap: textLoader.load("./assets/img/Tiles141_1K-JPG/Tiles141_1K-JPG_NormalGL.jpg")
+
 });
+
 const lWalltex = new THREE.MeshStandardMaterial({
-  // color: 0xb0b0b0,
+
   map: lowwallText,
-  roughness: 0.85,
-  metalness: 0.05
+   roughnessMap: textLoader.load("./assets/img/Tiles107_1K-JPG/Tiles107_1K-JPG_Roughness.jpg"),
+  normalMap: textLoader.load("./assets/img/Tiles107_1K-JPG/Tiles107_1K-JPG_NormalGL.jpg")
 });
 const uWalltex = new THREE.MeshStandardMaterial({
-  // color: 0xf2f2f2,
+
   map: upwallte,
-  roughness: 0.9,
-  metalness: 0.05
+  roughnessMap: textLoader.load("./assets/img/Tiles107_1K-JPG/Tiles107_1K-JPG_Roughness.jpg"),
+  normalMap: textLoader.load("./assets/img/Tiles107_1K-JPG/Tiles107_1K-JPG_NormalGL.jpg")
 });
+
 const ttex = new THREE.MeshStandardMaterial({
   color: 0x767676,
   roughness: 0.7,
   metalness: 0.1
 });
+
+const sideWalls = new THREE.MeshStandardMaterial({
+
+  map: sidewalls,
+   roughnessMap: textLoader.load("./assets/img/Tiles107_1K-JPG/Tiles107_1K-JPG_Roughness.jpg"),
+  normalMap: textLoader.load("./assets/img/Tiles107_1K-JPG/Tiles107_1K-JPG_NormalGL.jpg")
+})
 
 
 
@@ -86,11 +102,11 @@ arena.add(lowerWall);
 
 const sideWallGeo = new THREE.BoxGeometry(1, 16, 30);
 
-const leftWall = new THREE.Mesh(sideWallGeo, lWalltex);
+const leftWall = new THREE.Mesh(sideWallGeo, sideWalls);
 leftWall.position.set(-15, 8, 0);
 arena.add(leftWall);
 
-const rightWall = new THREE.Mesh(sideWallGeo, lWalltex);
+const rightWall = new THREE.Mesh(sideWallGeo, sideWalls);
 rightWall.position.set(15, 8, 0);
 arena.add(rightWall);
 
@@ -98,7 +114,7 @@ const roofGeo = new THREE.BoxGeometry(32, 1, 9);
 const roof = new THREE.Mesh(roofGeo, ttex);
 roof.position.set(0, 15, -9);
 arena.add(roof);
-roof.castShadow = true;
+// roof.castShadow = true;
 
 const block1 = new THREE.Mesh(new THREE.BoxGeometry(3.5, 2.5, 3), ttex);
 block1.position.set(-12.5, 1, -6.5);
@@ -110,7 +126,7 @@ arena.add(block2);
 
 arena.traverse((obj) => {
   if (obj.isMesh) {
-    obj.castShadow = true;
+    obj.castShadow = (obj !== roof);
     obj.receiveShadow = true;
   }
 });
@@ -134,8 +150,12 @@ renderer.shadowMap.type = THREE.PCFShadowMap;
 scene.background = new THREE.Color(0x4a515c);
 scene.fog = new THREE.Fog(0x4a515c, 20, 60)
 
-const ambientLight = new THREE.AmbientLight(0xdde3eb, 1.1);
-scene.add(ambientLight);
+// const ambientLight = new THREE.AmbientLight(0xdde3eb, 2.1);
+// scene.add(ambientLight);
+
+const roomLight = new THREE.HemisphereLight(0xffffff, 0x444455, 1.8);
+scene.add(roomLight);
+
 const sunlight = new THREE.DirectionalLight(0xffffff, 2.2);
 sunlight.position.set(1, 42, 34);
 sunlight.castShadow = true;
@@ -245,8 +265,8 @@ const targetGeometry = new THREE.SphereGeometry(0.7, 32, 32);
 const targetMaterial = new THREE.MeshStandardMaterial({
   // color: 0x00f5ff,
   map: targettext,
-  roughness: 0.3,
-  metalness: 0.85,
+  roughness: 0.03,
+  metalness: 0.95,
   emissive: 0x005566,
   emissiveIntensity: 0.12
 });
