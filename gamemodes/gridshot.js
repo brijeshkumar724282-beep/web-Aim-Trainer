@@ -2,6 +2,51 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
 const canvas = document.querySelector("#main-canvas");
 const scoretext = document.querySelector('#score');
 const accuracytext = document.querySelector('#accuracy');
+const timerEle = document.querySelector('#timer')
+
+const duration = 60;
+let tLeft = duration
+let tRunning = false
+let tInterval = null
+let isGOver = false
+
+
+function startT(){
+  if(tRunning) return;
+  tRunning = true;
+  const startTime = performance.now();
+  tInterval = setInterval(()=>{
+    const elapse = (performance.now() - startTime) / 1000;
+    tLeft = Math.max(0, duration - elapse)
+    
+
+    if(timerEle){
+      timerEle.textContent = tLeft.toFixed(1);
+    }
+
+    if(tLeft<= 0){endGame();}
+
+  }, 100)
+
+}
+
+
+function endGame(){
+  clearInterval(tInterval);
+  tRunning = false;
+  isGOver = true;
+
+  if(document.exitPointerLock){
+    document.exitPointerLock();
+
+  }
+
+  setTimeout(() => {
+     alert(`Time's up\nScore: ${score}\nAccuracy: ${Math.round((shotsHit / (shotsFired || 1)) * 100)}%`);
+    window.location.href = "../index.html";
+  }, 50);
+
+}
 
 if(canvas == false){
   console.log("no canvas");
@@ -12,69 +57,87 @@ const textLoader = new THREE.TextureLoader();
 
 //texture packs
 
-const lowwallText= textLoader.load("./assets/img/Tiles107_1K-JPG/Tiles107_1K-JPG_Color.jpg");
-lowwallText.wrapS = THREE.RepeatWrapping;
-lowwallText.wrapT = THREE.RepeatWrapping;
-lowwallText.repeat.set(5,0.7);
+const lowerWallTexture = textLoader.load("../assets/img/Tiles107_1K-JPG/Tiles107_1K-JPG_Color.jpg")
+lowerWallTexture.wrapS = THREE.RepeatWrapping;
+lowerWallTexture.wrapT = THREE.RepeatWrapping;
+lowerWallTexture.repeat.set(15, 2.1);
 
-//floor text
-const floortextu = textLoader.load("./assets/img/Tiles141_1K-JPG/Tiles141_1K-JPG_Color.jpg");
-floortextu.wrapS = THREE.RepeatWrapping;
-floortextu.wrapT = THREE.RepeatWrapping;
-floortextu.repeat.set(2, 2);
+const floorTexture = textLoader.load("../assets/img/Tiles141_1K-JPG/Tiles141_1K-JPG_Color.jpg")
+floorTexture.wrapS = THREE.RepeatWrapping;
+floorTexture.wrapT = THREE.RepeatWrapping;
+floorTexture.repeat.set(4, 4);
 
-//upper wall
-const upwallte = textLoader.load("./assets/img/Tiles107_1K-JPG/Tiles107_1K-JPG_Color.jpg");
-upwallte.wrapS = THREE.RepeatWrapping;
-upwallte.wrapT = THREE.RepeatWrapping;
-upwallte.repeat.set(5, 2)
+const upperWallTexture = textLoader.load("../assets/img/Tiles107_1K-JPG/Tiles107_1K-JPG_Color.jpg")
+upperWallTexture.wrapS = THREE.RepeatWrapping;
+upperWallTexture.wrapT = THREE.RepeatWrapping;
+upperWallTexture.repeat.set(15, 6);
 
-//target
-const targettext = textLoader.load("./assets/img/Texturelabs_Metal_254S.jpg");
+const targetTexture = textLoader.load("../assets/img/Texturelabs_Metal_254S.jpg");
 
-//side walls text
-const sidewalls = textLoader.load("./assets/img/Tiles107_1K-JPG/Tiles107_1K-JPG_Color.jpg");
-sidewalls.wrapS = THREE.RepeatWrapping;
-sidewalls.wrapT = THREE.RepeatWrapping;
-sidewalls.repeat.set(5, 2.7)
+const lowerWallRoughness = textLoader.load("../assets/img/Tiles107_1K-JPG/Tiles107_1K-JPG_Roughness.jpg");
+lowerWallRoughness.wrapS = THREE.RepeatWrapping;
+lowerWallRoughness.wrapT = THREE.RepeatWrapping;
+lowerWallRoughness.repeat.set(15, 2.1);
+
+const upperWallRoughness = textLoader.load("../assets/img/Tiles107_1K-JPG/Tiles107_1K-JPG_Roughness.jpg");
+upperWallRoughness.wrapS = THREE.RepeatWrapping;
+upperWallRoughness.wrapT = THREE.RepeatWrapping;
+upperWallRoughness.repeat.set(15, 6);
+
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x3a3f47);
 scene.fog = new THREE.Fog(0x3a3f47, 25, 70);
 
 //material
-const floortex = new THREE.MeshStandardMaterial({
-  map: floortextu,
-  roughnessMap: textLoader.load("./assets/img/Tiles141_1K-JPG/Tiles141_1K-JPG_Roughness.jpg"),
-  normalMap: textLoader.load("./assets/img/Tiles141_1K-JPG/Tiles141_1K-JPG_NormalGL.jpg")
+const floorMaterial = new THREE.MeshStandardMaterial({
+
+    map: floorTexture,
+    roughnessMap: textLoader.load("./assets/img/Tiles141_1K-JPG/Tiles141_1K-JPG_Roughness.jpg"),
+    normalMap: textLoader.load("../assets/img/Tiles141_1K-JPG/Tiles141_1K-JPG_NormalGL.jpg")
 
 });
 
-const lWalltex = new THREE.MeshStandardMaterial({
 
-  map: lowwallText,
-   roughnessMap: textLoader.load("./assets/img/Tiles107_1K-JPG/Tiles107_1K-JPG_Roughness.jpg"),
-  normalMap: textLoader.load("./assets/img/Tiles107_1K-JPG/Tiles107_1K-JPG_NormalGL.jpg")
-});
-const uWalltex = new THREE.MeshStandardMaterial({
-
-  map: upwallte,
-  roughnessMap: textLoader.load("./assets/img/Tiles107_1K-JPG/Tiles107_1K-JPG_Roughness.jpg"),
-  normalMap: textLoader.load("./assets/img/Tiles107_1K-JPG/Tiles107_1K-JPG_NormalGL.jpg")
+const lowerWallMaterial = new THREE.MeshStandardMaterial({
+    map: lowerWallTexture,
+    roughnessMap: lowerWallRoughness
 });
 
-const ttex = new THREE.MeshStandardMaterial({
+const upperWallMaterial = new THREE.MeshStandardMaterial({
+
+    map: upperWallTexture,
+    roughnessMap: upperWallRoughness
+});
+
+const blockMaterial = new THREE.MeshStandardMaterial({
   color: 0x767676,
   roughness: 0.7,
   metalness: 0.1
 });
 
-const sideWalls = new THREE.MeshStandardMaterial({
+const sideWallsTexture = textLoader.load("../assets/img/Tiles107_1K-JPG/Tiles107_1K-JPG_Color.jpg");
+sideWallsTexture.wrapS = THREE.RepeatWrapping;
+sideWallsTexture.wrapT = THREE.RepeatWrapping;
+sideWallsTexture.repeat.set(15, 8);
 
-  map: sidewalls,
-   roughnessMap: textLoader.load("./assets/img/Tiles107_1K-JPG/Tiles107_1K-JPG_Roughness.jpg"),
-  normalMap: textLoader.load("./assets/img/Tiles107_1K-JPG/Tiles107_1K-JPG_NormalGL.jpg")
-})
+const sideWallsRoughness = textLoader.load("../assets/img/Tiles107_1K-JPG/Tiles107_1K-JPG_Roughness.jpg");
+sideWallsRoughness.wrapS = THREE.RepeatWrapping;
+sideWallsRoughness.wrapT = THREE.RepeatWrapping;
+sideWallsRoughness.repeat.set(15, 8);
+
+const sideWallsNormal = textLoader.load("../assets/img/Tiles107_1K-JPG/Tiles107_1K-JPG_NormalGL.jpg");
+sideWallsNormal.wrapS = THREE.RepeatWrapping;
+sideWallsNormal.wrapT = THREE.RepeatWrapping;
+sideWallsNormal.repeat.set(15, 8);
+
+
+
+const sideWallsMaterial = new THREE.MeshStandardMaterial({
+    map: sideWallsTexture,
+    roughnessMap: sideWallsRoughness,
+    normalMap: sideWallsNormal,
+});
 
 
 
@@ -84,43 +147,42 @@ scene.add(arena);
 
 
 
-// Upperwall
 const uwallGeo = new THREE.BoxGeometry(30, 12, 1);
-const uwall = new THREE.Mesh(uwallGeo, uWalltex);
+const uwall = new THREE.Mesh(uwallGeo, upperWallMaterial);
 uwall.position.set(0, 10.1, -14.5);
 arena.add(uwall);
 
 const floorGeo = new THREE.BoxGeometry(32, 1, 30);
-const floor = new THREE.Mesh(floorGeo, floortex);
+const floor = new THREE.Mesh(floorGeo, floorMaterial);
 floor.position.set(0, -0.5, 0);
 arena.add(floor);
 
 const lowerWallGeo = new THREE.BoxGeometry(30, 4.2, 6);
-const lowerWall = new THREE.Mesh(lowerWallGeo, lWalltex);
+const lowerWall = new THREE.Mesh(lowerWallGeo, lowerWallMaterial);
 lowerWall.position.set(0, 2, -11);
 arena.add(lowerWall);
 
 const sideWallGeo = new THREE.BoxGeometry(1, 16, 30);
 
-const leftWall = new THREE.Mesh(sideWallGeo, sideWalls);
+const leftWall = new THREE.Mesh(sideWallGeo, sideWallsMaterial);
 leftWall.position.set(-15, 8, 0);
 arena.add(leftWall);
 
-const rightWall = new THREE.Mesh(sideWallGeo, sideWalls);
+const rightWall = new THREE.Mesh(sideWallGeo, sideWallsMaterial);
 rightWall.position.set(15, 8, 0);
 arena.add(rightWall);
 
 const roofGeo = new THREE.BoxGeometry(32, 1, 9);
-const roof = new THREE.Mesh(roofGeo, ttex);
+const roof = new THREE.Mesh(roofGeo, blockMaterial);
 roof.position.set(0, 15, -9);
 arena.add(roof);
 // roof.castShadow = true;
 
-const block1 = new THREE.Mesh(new THREE.BoxGeometry(3.5, 2.5, 3), ttex);
+const block1 = new THREE.Mesh(new THREE.BoxGeometry(3.5, 2.5, 3), blockMaterial);
 block1.position.set(-12.5, 1, -6.5);
 arena.add(block1);
 
-const block2 = new THREE.Mesh(new THREE.BoxGeometry(5, 4, 2.5), ttex);
+const block2 = new THREE.Mesh(new THREE.BoxGeometry(5, 4, 2.5), blockMaterial);
 block2.position.set(10.5, 1, -6.5);
 arena.add(block2);
 
@@ -150,8 +212,6 @@ renderer.shadowMap.type = THREE.PCFShadowMap;
 scene.background = new THREE.Color(0x4a515c);
 scene.fog = new THREE.Fog(0x4a515c, 20, 60)
 
-// const ambientLight = new THREE.AmbientLight(0xdde3eb, 2.1);
-// scene.add(ambientLight);
 
 const roomLight = new THREE.HemisphereLight(0xffffff, 0x444455, 1.8);
 scene.add(roomLight);
@@ -230,6 +290,14 @@ cam.lookAt(0, 5.5, -8)
 
 let sensi = 0.36;
 let sensitivity = sensi * (0.07 * (Math.PI / 180));
+const sensiVal = document.querySelector('#sensi');
+document.addEventListener('keydown', (e) => {
+    if(e.key === '-' || e.key === '_'){ sensi = Math.max(0.05, sensi - 0.05); }
+    else if(e.key === '=' || e.key === '+'){ sensi = Math.min(2, sensi + 0.05); }
+    else return;
+    sensitivity = sensi * (0.07 * (Math.PI / 180));
+    if(sensiVal) sensiVal.textContent = sensi.toFixed(2);
+});
 
 canvas.addEventListener('click', () => {
     if(!isLocked){
@@ -264,7 +332,7 @@ const targetGeometry = new THREE.SphereGeometry(0.7, 32, 32);
 
 const targetMaterial = new THREE.MeshStandardMaterial({
   // color: 0x00f5ff,
-  map: targettext,
+  map: targetTexture,
   roughness: 0.03,
   metalness: 0.95,
   emissive: 0x005566,
@@ -349,6 +417,8 @@ let shotsHit = 0;
 
 
 function shoot(){
+  if(isGOver) return;
+  if(!tRunning) startT();
   shotsFired++;
   raycaster.setFromCamera(screenCenter, cam);
   const intersects = raycaster.intersectObjects(activeTargets);

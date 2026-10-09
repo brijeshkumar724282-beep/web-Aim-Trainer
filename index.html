@@ -3,20 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D AIM TRAINER</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Aim trainer</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="menu.css">
 </head>
 <body>
-    <div id="crosshair"></div>
-    <div id="fps-counter">FPS: <span>0</span></div>
-    <div id="hud">
-        <div>SCORE: <span id="score">0</span> </div>
-        <div>ACCURACY: <span id="accuracy">100%</span></div>
-    </div>
-    <canvas id="main-canvas"></canvas>
+    
+    <div id="menu">
 
-    <script type="module" src="script.js"></script>
+        <div class="menuList">
+
+            <div class="menu-card" data-mode="gridshot">
+                <h1>GRIDSHOT</h1>
+            </div>
+
+            <div class="menu-card" data-mode="sixshot"> 
+                <h1>SIXSHOT</h1>
+            </div>
+            <!-- <div class="menu-card" data-mode="spheretrack">
+                <h1>
+                    SPHERE TRACK
+                </h1>
+            </div>
+            <div class="menu-card" data-mode="spidershot">
+                <h1>
+                    SPIDERSHOT
+                </h1>
+            </div> -->
+
+        </div>
+
+    </div>
+
+
+
+   <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/Observer.min.js"></script>
+    <script src="menu.js"></script>
+
+
 </body>
 </html>
-
-
