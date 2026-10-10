@@ -188,7 +188,7 @@ arena.add(block2);
 
 arena.traverse((obj) => {
   if (obj.isMesh) {
-    obj.castShadow = (obj !== roof);
+    obj.castShadow = false;
     obj.receiveShadow = true;
   }
 });
@@ -201,7 +201,7 @@ const renderer = new THREE.WebGLRenderer({
 
 renderer.setSize(window.innerWidth, window.innerHeight);
 
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
 
 
 renderer.shadowMap.enabled = true;
@@ -220,8 +220,8 @@ const sunlight = new THREE.DirectionalLight(0xffffff, 2.2);
 sunlight.position.set(1, 42, 34);
 sunlight.castShadow = true;
 
-sunlight.shadow.mapSize.width = 4096;
-sunlight.shadow.mapSize.height = 4096;
+sunlight.shadow.mapSize.width = 1024;
+sunlight.shadow.mapSize.height = 1024;
 sunlight.shadow.radius = 3;
 sunlight.shadow.camera.near = 0.5;
 sunlight.shadow.camera.far = 60;
@@ -267,16 +267,18 @@ window.addEventListener('resize', () => {
 });
 
 function reqAnimeFrame(){
+
+  requestAnimationFrame(reqAnimeFrame);
   frameCount++;
   const currentTime = performance.now();
+
   if(currentTime - lastTime >= 1000){
-    const fps = Math.round((frameCount*1000) / (currentTime - lastTime));
+    const fps = Math.round((frameCount*1000) / (currentTime - lastTime))
     fpsElemenet.textContent = fps;
     frameCount = 0;
     lastTime = currentTime;
   }
   renderer.render(scene, cam);
-  setTimeout(reqAnimeFrame, 0);
 }
 
 reqAnimeFrame();
@@ -328,7 +330,7 @@ document.addEventListener('mousemove', (event)=>{
     cam.rotation.set(pitch, yaw, 0, 'YXZ')
 });
 
-const targetGeometry = new THREE.SphereGeometry(0.7, 32, 32);
+const targetGeometry = new THREE.SphereGeometry(0.7, 18, 18);
 
 const targetMaterial = new THREE.MeshStandardMaterial({
   // color: 0x00f5ff,
@@ -361,27 +363,50 @@ for (let r = 0; r < ROWS; r++) {
 const activeTargets = [];
 const MAX_TARGETS = 3;
 
-function spawnTarget() {
-  const availableSlots = gridSlots.filter(slot => !slot.occupied);
-  if (availableSlots.length === 0) return;
+// function spawnTarget() {
+//   const availableSlots = gridSlots.filter(slot => !slot.occupied);
+//   if (availableSlots.length === 0) return;
 
-  const randomSlot = availableSlots[Math.floor(Math.random() * availableSlots.length)];
+//   const randomSlot = availableSlots[Math.floor(Math.random() * availableSlots.length)];
+//   randomSlot.occupied = true;
+
+//   const target = new THREE.Mesh(targetGeometry, targetMaterial);
+//   target.position.set(randomSlot.x, randomSlot.y, randomSlot.z);
+
+//   target.userData.slot = randomSlot;
+
+//   target.castShadow = true;
+//   target.receiveShadow = true;
+
+//   scene.add(target);
+//   activeTargets.push(target);
+// }
+
+// for (let i = 0; i < MAX_TARGETS; i++) {
+//   spawnTarget();
+// }
+
+
+function placeTarget(targer){
+
+
+  const availableSLots = gridSlots.filter(slot => !slot.occupied)
+  if(availableSLots.length === 0) return;
+  const randomSlot = availableSLots[Math.floor(Math.random() * availableSLots.length)]
   randomSlot.occupied = true;
+  targer.userData.slot = randomSlot;
+  targer.position.set(randomSlot.x, randomSlot.y, randomSlot.z);
+  targer.visible = true;
+}
+for (let i = 0; i<MAX_TARGETS; i++){
 
   const target = new THREE.Mesh(targetGeometry, targetMaterial);
-  target.position.set(randomSlot.x, randomSlot.y, randomSlot.z);
-
-  target.userData.slot = randomSlot;
-
   target.castShadow = true;
-  target.receiveShadow = true;
-
-  scene.add(target);
-  activeTargets.push(target);
-}
-
-for (let i = 0; i < MAX_TARGETS; i++) {
-  spawnTarget();
+  target.receiveShadow = false;
+  target.visible = false;
+  scene.add(target)
+  activeTargets.push(target)
+  placeTarget(target)
 }
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -426,20 +451,23 @@ function shoot(){
     shotsHit++;
     score = score + 1;
     killfx();
+
     const hitTarget = intersects[0].object;
-    if(hitTarget.userData.slot){
+    hitTarget.userData.slot.occupied = false;
+    placeTarget(hitTarget)
+    // if(hitTarget.userData.slot){
 
-      hitTarget.userData.slot.occupied = false;
-    }
+    //   hitTarget.userData.slot.occupied = false;
+    // }
 
-    scene.remove(hitTarget);
+    // scene.remove(hitTarget);
 
-    const index = activeTargets.indexOf(hitTarget);
-    if(index > -1){
-      activeTargets.splice(index, 1);
+    // const index = activeTargets.indexOf(hitTarget);
+    // if(index > -1){
+    //   activeTargets.splice(index, 1);
     
-      }
-    spawnTarget();
+    // }
+    // spawnTarget();
   }
   const accuracy = Math.round((shotsHit / shotsFired) * 100);
 

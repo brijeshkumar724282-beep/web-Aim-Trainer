@@ -1,0 +1,17 @@
+##Aim Trainer Polish & Improvements
+-----------------------------------------------------------------------------------------------------------------------
+
+
+Fix Gridshot lag: implement object pooling and optimize mesh/shadow calculations
+
+Replace browser alert() with a custom HTML/CSS end-game results screen
+
+Add mouse sensitivity slider and persist settings via localStorage
+
+Fix GSAP text clipping bug on mode selection menu
+
+Add a custom favicon and an open-source MIT License to GitHub repository
+
+Add a brief tutorial/controls guide on the main menu
+
+Optional: add dynamic moving targets mode or local high score leaderboard
